@@ -11,8 +11,6 @@ import type {
 
 const DOTS_PER_MM = 8;
 const COLUMN_GAP_DOTS = 12;
-const MIN_EXTRA_GAP_DOTS = 8;
-
 const FONT_METRICS: Record<FontSize, FontMetrics> = {
   sm: {
     fieldHeight: 18,
@@ -247,22 +245,16 @@ export function buildLabelLayout(config: LabelConfig): LabelLayout {
   const columns: LayoutColumn[] = groups.map((group, columnIndex) => {
     const preparedItems = group.map((item) => prepareItem(item, columnWidth));
     fitItemsToColumn(preparedItems, printableHeight);
-    const fixedHeight = preparedItems.reduce(
+    const contentHeight = preparedItems.reduce(
       (sum, item, index) => sum + item.height - (index === preparedItems.length - 1 ? item.metrics.itemGap : 0),
       0,
     );
-    const extraGap =
-      preparedItems.length > 1
-        ? printableHeight > fixedHeight
-          ? Math.max(MIN_EXTRA_GAP_DOTS, Math.floor((printableHeight - fixedHeight) / (preparedItems.length - 1)))
-          : 0
-        : 0;
     const x = marginDots + columnIndex * (columnWidth + COLUMN_GAP_DOTS);
-    let currentY = marginDots;
+    let currentY = marginDots + Math.max(0, Math.floor((printableHeight - contentHeight) / 2));
 
     const items = preparedItems.map((prepared) => {
       const layoutItem = buildItemLayout(prepared, x, columnWidth, currentY, columnIndex);
-      currentY = layoutItem.bottom + prepared.metrics.itemGap + extraGap;
+      currentY = layoutItem.bottom + prepared.metrics.itemGap;
       return layoutItem;
     });
 
