@@ -22,5 +22,5 @@ export const DEFAULT_ITEMS = [
   { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "VAL: INDETERMINADA", size: 12, sizeMode: "auto" as const },
   { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "FAIXA LISA LARGA", size: 12, sizeMode: "auto" as const },
   { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "3165", size: 12, sizeMode: "auto" as const },
-  { id: crypto.randomUUID(), kind: "barcode" as const, field: "", value: "123456789012", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "barcode" as const, field: "", value: "12345678910", size: 12, sizeMode: "auto" as const },
 ];

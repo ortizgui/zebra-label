@@ -9,7 +9,7 @@ const STORAGE_KEY = "zebra-label-generator-config";
 const LEGACY_CNPJ_EXAMPLE = "CNPJ: 21.413.038/0001-86";
 const SAFE_CNPJ_PLACEHOLDER = "CNPJ: 00.000.000/0000-00";
 const LEGACY_BARCODE_EXAMPLE = "11313366633";
-const SAFE_BARCODE_PLACEHOLDER = "123456789012";
+const SAFE_BARCODE_PLACEHOLDER = "12345678910";
 
 type PersistedConfig = {
   presetId: string;
@@ -79,7 +79,7 @@ function createDefaultConfig(): LabelConfig {
     preset: LABEL_PRESETS.find((preset) => preset.id === "product-40x25") ?? LABEL_PRESETS[0],
     itemColumns: 1,
     labelsPerRow: 2,
-    rows: 10,
+    rows: 1,
     printQuantity: 20,
     items: DEFAULT_ITEMS,
     align: "left",
@@ -102,7 +102,7 @@ function getInitialConfig(): LabelConfig {
       preset: LABEL_PRESETS.find((preset) => preset.id === savedConfig.presetId) ?? createDefaultConfig().preset,
       itemColumns: Math.min(4, Math.max(1, savedConfig.itemColumns ?? savedConfig.columns ?? 1)),
       labelsPerRow: Math.min(6, Math.max(1, savedConfig.labelsPerRow ?? 2)),
-      rows: Math.min(60, Math.max(1, savedConfig.rows ?? 10)),
+      rows: Math.min(60, Math.max(1, savedConfig.rows ?? 1)),
       printQuantity: Math.min(500, Math.max(1, savedConfig.printQuantity ?? savedConfig.rows ?? 20)),
       items: savedConfig.items?.length ? savedConfig.items.map(normalizeItem) : DEFAULT_ITEMS,
       align: savedConfig.align === "center" ? "center" : "left",
@@ -627,7 +627,7 @@ export default function App() {
                       item.kind === "pair"
                         ? "Ex.: Mouse Gamer"
                         : item.kind === "barcode"
-                          ? "Ex.: 123456789012"
+                          ? "Ex.: 12345678910"
                           : "Ex.: Toalha touca de cetim cachos"
                     }
                   />
