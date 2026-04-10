@@ -19,6 +19,8 @@ type PersistedConfig = {
   printQuantity: number;
   items: LabelItem[];
   align?: LabelConfig["align"];
+  labelGapXMm?: number;
+  labelGapYMm?: number;
 };
 
 function createItem(): LabelItem {
@@ -75,14 +77,17 @@ function normalizeItem(item: LabelItem): LabelItem {
 }
 
 function createDefaultConfig(): LabelConfig {
+  const preset = LABEL_PRESETS.find((entry) => entry.id === "product-40x25") ?? LABEL_PRESETS[0];
   return {
-    preset: LABEL_PRESETS.find((preset) => preset.id === "product-40x25") ?? LABEL_PRESETS[0],
+    preset,
     itemColumns: 1,
     labelsPerRow: 2,
     rows: 1,
     printQuantity: 20,
     items: DEFAULT_ITEMS,
     align: "left",
+    labelGapXMm: preset.gapXMm ?? 0,
+    labelGapYMm: preset.gapYMm ?? 0,
   };
 }
 
@@ -98,14 +103,18 @@ function getInitialConfig(): LabelConfig {
 
   try {
     const savedConfig = JSON.parse(storedValue) as Partial<PersistedConfig> & { columns?: number };
+    const defaultConfig = createDefaultConfig();
+    const preset = LABEL_PRESETS.find((entry) => entry.id === savedConfig.presetId) ?? defaultConfig.preset;
     return {
-      preset: LABEL_PRESETS.find((preset) => preset.id === savedConfig.presetId) ?? createDefaultConfig().preset,
+      preset,
       itemColumns: Math.min(4, Math.max(1, savedConfig.itemColumns ?? savedConfig.columns ?? 1)),
       labelsPerRow: Math.min(6, Math.max(1, savedConfig.labelsPerRow ?? 2)),
       rows: Math.min(60, Math.max(1, savedConfig.rows ?? 1)),
       printQuantity: Math.min(500, Math.max(1, savedConfig.printQuantity ?? savedConfig.rows ?? 20)),
       items: savedConfig.items?.length ? savedConfig.items.map(normalizeItem) : DEFAULT_ITEMS,
       align: savedConfig.align === "center" ? "center" : "left",
+      labelGapXMm: Math.max(0, savedConfig.labelGapXMm ?? preset.gapXMm ?? defaultConfig.labelGapXMm),
+      labelGapYMm: Math.max(0, savedConfig.labelGapYMm ?? preset.gapYMm ?? defaultConfig.labelGapYMm),
     };
   } catch {
     return createDefaultConfig();
@@ -304,6 +313,8 @@ export default function App() {
       printQuantity: config.printQuantity,
       items: config.items,
       align: config.align,
+      labelGapXMm: config.labelGapXMm,
+      labelGapYMm: config.labelGapYMm,
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [config]);
@@ -319,14 +330,21 @@ export default function App() {
 
   const zplContent = useMemo(() => generateZpl(effectiveConfig), [effectiveConfig]);
   const sizeSummary = `${config.preset.widthMm} x ${config.preset.heightMm} mm por etiqueta • ${mmToDots(config.preset.widthMm)} x ${mmToDots(config.preset.heightMm)} dots`;
-  const printAreaSummary = `${config.labelsPerRow} por linha • ${config.rows} linhas • área final ${config.preset.widthMm * config.labelsPerRow} x ${config.preset.heightMm * config.rows} mm`;
+  const totalWidthMm = config.preset.widthMm * config.labelsPerRow + config.labelGapXMm * Math.max(0, config.labelsPerRow - 1);
+  const totalHeightMm = config.preset.heightMm * config.rows + config.labelGapYMm * Math.max(0, config.rows - 1);
+  const printAreaSummary = `${config.labelsPerRow} por linha • ${config.rows} linhas • área final ${totalWidthMm} x ${totalHeightMm} mm`;
 
   function updatePreset(presetId: string) {
     const preset = LABEL_PRESETS.find((entry) => entry.id === presetId);
     if (!preset) {
       return;
     }
-    setConfig((current) => ({ ...current, preset }));
+    setConfig((current) => ({
+      ...current,
+      preset,
+      labelGapXMm: preset.gapXMm ?? current.labelGapXMm,
+      labelGapYMm: preset.gapYMm ?? current.labelGapYMm,
+    }));
   }
 
   function updateItem(id: string, key: keyof Omit<LabelItem, "id">, value: string) {
@@ -512,6 +530,40 @@ export default function App() {
                   </option>
                 ))}
               </select>
+            </label>
+
+            <label className="field-group">
+              <FieldLabel label="Espaço horizontal entre etiquetas (mm)" hint="Informe a folga física entre uma etiqueta e outra na mesma linha. Esse valor corrige a posição da etiqueta da direita no ZPL." />
+              <input
+                type="number"
+                min={0}
+                max={20}
+                step={0.5}
+                value={config.labelGapXMm}
+                onChange={(event) =>
+                  setConfig((current) => ({
+                    ...current,
+                    labelGapXMm: Math.min(20, Math.max(0, Number(event.target.value) || 0)),
+                  }))
+                }
+              />
+            </label>
+
+            <label className="field-group">
+              <FieldLabel label="Espaço vertical entre etiquetas (mm)" hint="Informe a folga física entre as linhas para manter a repetição alinhada na mídia real." />
+              <input
+                type="number"
+                min={0}
+                max={20}
+                step={0.5}
+                value={config.labelGapYMm}
+                onChange={(event) =>
+                  setConfig((current) => ({
+                    ...current,
+                    labelGapYMm: Math.min(20, Math.max(0, Number(event.target.value) || 0)),
+                  }))
+                }
+              />
             </label>
           </div>
 

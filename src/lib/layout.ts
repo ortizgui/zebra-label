@@ -297,8 +297,9 @@ function lineTextX(
   columnWidth: number,
   fontWidth: number,
   text: string,
+  forceCenter = false,
 ): number {
-  if (config.align === "left") {
+  if (!forceCenter && config.align === "left") {
     return columnX + LEFT_PADDING_DOTS;
   }
 
@@ -313,10 +314,11 @@ function buildTextLines(
   columnWidth: number,
   fontHeight: number,
   fontWidth: number,
+  forceCenter = false,
 ): LayoutTextLine[] {
   return lines.map((line, index) => ({
     text: line,
-    x: lineTextX(config, columnX, columnWidth, fontWidth, line),
+    x: lineTextX(config, columnX, columnWidth, fontWidth, line, forceCenter),
     y: startY + index * fontHeight,
     fontHeight,
     fontWidth,
@@ -333,9 +335,7 @@ function buildItemLayout(
 ): LayoutItem {
   const barcodeX =
     prepared.item.kind === "barcode"
-      ? config.align === "left"
-        ? columnX + LEFT_PADDING_DOTS
-        : Math.round(columnX + (columnWidth - prepared.barcodeWidth) / 2)
+      ? Math.round(columnX + (columnWidth - prepared.barcodeWidth) / 2)
       : undefined;
   const fieldLines = buildTextLines(
     config,
@@ -360,6 +360,7 @@ function buildItemLayout(
     columnWidth,
     prepared.item.kind === "barcode" ? prepared.barcodeTextHeight : prepared.metrics.valueHeight,
     prepared.metrics.valueWidth,
+    prepared.item.kind === "barcode",
   );
 
   const bottom =
@@ -423,6 +424,8 @@ function buildContentColumns(
 export function buildLabelLayout(config: LabelConfig): LabelLayout {
   const labelWidthDots = mmToDots(config.preset.widthMm);
   const labelHeightDots = mmToDots(config.preset.heightMm);
+  const labelGapXDots = mmToDots(config.labelGapXMm);
+  const labelGapYDots = mmToDots(config.labelGapYMm);
   const marginDots = mmToDots(config.preset.marginMm);
   const printableWidth = labelWidthDots - marginDots * 2;
   const printableHeight = labelHeightDots - marginDots * 2;
@@ -431,8 +434,8 @@ export function buildLabelLayout(config: LabelConfig): LabelLayout {
 
   for (let rowIndex = 0; rowIndex < config.rows; rowIndex += 1) {
     for (let columnIndex = 0; columnIndex < config.labelsPerRow; columnIndex += 1) {
-      const x = columnIndex * labelWidthDots;
-      const y = rowIndex * labelHeightDots;
+      const x = columnIndex * (labelWidthDots + labelGapXDots);
+      const y = rowIndex * (labelHeightDots + labelGapYDots);
 
       cells.push({
         id: `cell-${rowIndex}-${columnIndex}`,
@@ -448,10 +451,12 @@ export function buildLabelLayout(config: LabelConfig): LabelLayout {
   }
 
   return {
-    widthDots: labelWidthDots * config.labelsPerRow,
-    heightDots: labelHeightDots * config.rows,
+    widthDots: labelWidthDots * config.labelsPerRow + labelGapXDots * Math.max(0, config.labelsPerRow - 1),
+    heightDots: labelHeightDots * config.rows + labelGapYDots * Math.max(0, config.rows - 1),
     labelWidthDots,
     labelHeightDots,
+    labelGapXDots,
+    labelGapYDots,
     marginDots,
     printableWidth,
     printableHeight,

@@ -7,6 +7,8 @@ export type LabelPreset = {
   heightMm: number;
   dpi: number;
   marginMm: number;
+  gapXMm?: number;
+  gapYMm?: number;
 };
 
 export type LabelItem = {
@@ -26,6 +28,8 @@ export type LabelConfig = {
   printQuantity: number;
   items: LabelItem[];
   align: "left" | "center";
+  labelGapXMm: number;
+  labelGapYMm: number;
 };
 
 export type FontMetrics = {
@@ -85,6 +89,8 @@ export type LabelLayout = {
   heightDots: number;
   labelWidthDots: number;
   labelHeightDots: number;
+  labelGapXDots: number;
+  labelGapYDots: number;
   marginDots: number;
   printableWidth: number;
   printableHeight: number;
