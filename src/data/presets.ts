@@ -5,6 +5,7 @@ export const LABEL_PRESETS: LabelPreset[] = [
   { id: "shipping-102x99", name: "102 x 99 mm", widthMm: 102, heightMm: 99, dpi: 203, marginMm: 3 },
   { id: "shipping-102x152", name: '102 x 152 mm (4" x 6")', widthMm: 102, heightMm: 152, dpi: 203, marginMm: 3 },
   { id: "product-76x51", name: '76 x 51 mm (3" x 2")', widthMm: 76, heightMm: 51, dpi: 203, marginMm: 2 },
+  { id: "product-40x25", name: "40 x 25 mm", widthMm: 40, heightMm: 25, dpi: 203, marginMm: 1.5 },
   { id: "product-50x25", name: '50 x 25 mm (2" x 1")', widthMm: 50, heightMm: 25, dpi: 203, marginMm: 2 },
   { id: "product-38x25", name: '38 x 25 mm (1.5" x 1")', widthMm: 38, heightMm: 25, dpi: 203, marginMm: 2 },
   { id: "product-69x49", name: "69 x 49 mm", widthMm: 69, heightMm: 49, dpi: 203, marginMm: 2 },
@@ -15,7 +16,11 @@ export const LABEL_PRESETS: LabelPreset[] = [
 ];
 
 export const DEFAULT_ITEMS = [
-  { id: crypto.randomUUID(), field: "Produto", value: "Mouse Gamer", size: "lg" as const },
-  { id: crypto.randomUUID(), field: "Código", value: "12345", size: "md" as const },
-  { id: crypto.randomUUID(), field: "Preço", value: "R$ 199,90", size: "lg" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "Feito no Brasil", size: 14, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "CNPJ: 00.000.000/0000-00", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "100% POLIÉSTER", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "VAL: INDETERMINADA", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "FAIXA LISA LARGA", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "text" as const, field: "", value: "3165", size: 12, sizeMode: "auto" as const },
+  { id: crypto.randomUUID(), kind: "barcode" as const, field: "", value: "123456789012", size: 12, sizeMode: "auto" as const },
 ];

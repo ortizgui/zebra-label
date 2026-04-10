@@ -100,6 +100,12 @@ textarea {
   padding: 24px;
 }
 
+.preview-panel {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+}
+
 .panel-header {
   margin-bottom: 20px;
 }
@@ -126,10 +132,36 @@ textarea {
   margin-bottom: 16px;
 }
 
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
 .field-group span {
   font-size: 0.92rem;
   font-weight: 600;
   color: #4d3f2f;
+}
+
+.field-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-hint {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(141, 79, 29, 0.12);
+  color: var(--accent-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
 }
 
 .field-group input,
@@ -153,9 +185,50 @@ textarea {
   gap: 12px;
 }
 
+.preview-toolbar,
+.preview-zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-toolbar {
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.zoom-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(111, 56, 16, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 249, 243, 0.96);
+  color: var(--accent-strong);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.zoom-readout {
+  min-width: 62px;
+  text-align: center;
+  font-weight: 700;
+  color: #4d3f2f;
+}
+
+.preview-reset {
+  padding-inline: 8px;
+}
+
 .items-list {
   display: grid;
   gap: 14px;
+}
+
+.items-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .item-card {
@@ -165,13 +238,40 @@ textarea {
   border: 1px solid rgba(111, 56, 16, 0.08);
 }
 
+.item-card-dragging {
+  opacity: 0.6;
+  border-color: rgba(141, 79, 29, 0.32);
+}
+
+.item-card-drop-target {
+  border-color: rgba(141, 79, 29, 0.5);
+  box-shadow:
+    inset 0 0 0 2px rgba(141, 79, 29, 0.22),
+    0 10px 24px rgba(141, 79, 29, 0.08);
+  transform: translateY(-2px);
+}
+
 .item-card-header {
   margin-bottom: 14px;
 }
 
+.item-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .primary-button,
 .secondary-button,
-.ghost-button {
+.ghost-button,
+.danger-button {
   border: none;
   border-radius: 999px;
   padding: 12px 18px;
@@ -199,10 +299,35 @@ textarea {
   padding-inline: 0;
 }
 
+.danger-button {
+  background: rgba(183, 64, 32, 0.12);
+  color: #9f3d1b;
+  font-weight: 700;
+}
+
+.drag-handle {
+  width: 38px;
+  height: 38px;
+  border: 1px dashed rgba(111, 56, 16, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 249, 243, 0.96);
+  color: var(--accent-strong);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: grab;
+}
+
 .primary-button:hover,
 .secondary-button:hover,
-.ghost-button:hover {
+.ghost-button:hover,
+.drag-handle:hover,
+.danger-button:hover {
   transform: translateY(-1px);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .preview-stage {
@@ -210,6 +335,7 @@ textarea {
   place-items: center;
   min-height: 320px;
   padding: 18px;
+  overflow: auto;
   border-radius: 26px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(249, 236, 220, 0.9)),
@@ -225,6 +351,7 @@ textarea {
 
 .preview-svg {
   max-width: 100%;
+  max-height: 72vh;
   height: auto;
   overflow: visible;
 }
@@ -242,6 +369,31 @@ textarea {
   color: #f8efe6;
 }
 
+.zpl-details {
+  margin-top: 20px;
+}
+
+.zpl-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--accent-strong);
+  list-style: none;
+}
+
+.zpl-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.zpl-details summary::before {
+  content: "+";
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.zpl-details[open] summary::before {
+  content: "-";
+}
+
 .zpl-output pre {
   margin: 16px 0 0;
   max-height: 320px;
@@ -256,6 +408,10 @@ textarea {
 @media (max-width: 980px) {
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .preview-panel {
+    position: static;
   }
 
   .hero {
@@ -278,8 +434,13 @@ textarea {
     max-width: none;
   }
 
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
   .items-header,
   .item-card-header,
+  .item-card-actions,
   .preview-actions,
   .zpl-output-header {
     flex-direction: column;

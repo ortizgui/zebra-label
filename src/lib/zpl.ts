@@ -11,20 +11,34 @@ function fontCommand(width: number, height: number): string {
 
 export function generateZpl(config: LabelConfig): string {
   const layout = buildLabelLayout(config);
-  const output: string[] = ["^XA", "^CI28", `^PW${layout.widthDots}`, `^LL${layout.heightDots}`];
+  const output: string[] = [
+    "^XA",
+    "^CI28",
+    "^MMT",
+    `^PW${layout.widthDots}`,
+    `^LL${layout.heightDots}`,
+    `^PQ${config.printQuantity}`,
+  ];
 
-  for (const column of layout.columns) {
-    for (const item of column.items) {
-      for (const line of item.fieldLines) {
-        output.push(
-          `^FO${line.x},${line.y}${fontCommand(line.fontWidth, line.fontHeight)}^FD${sanitizeZplText(line.text)}^FS`,
-        );
-      }
+  for (const cell of layout.cells) {
+    for (const column of cell.columns) {
+      for (const item of column.items) {
+        for (const line of item.fieldLines) {
+          output.push(
+            `^FO${line.x},${line.y}${fontCommand(line.fontWidth, line.fontHeight)}^FD${sanitizeZplText(line.text)}^FS`,
+          );
+        }
 
-      for (const line of item.valueLines) {
-        output.push(
-          `^FO${line.x},${line.y}${fontCommand(line.fontWidth, line.fontHeight)}^FD${sanitizeZplText(line.text)}^FS`,
-        );
+        for (const line of item.valueLines) {
+          if (item.kind === "barcode") {
+            output.push(`^BY${item.barcodeModuleWidth ?? 1},2,${item.barcodeHeight ?? 20}`);
+            output.push(`^FO${item.barcodeX ?? line.x},${item.top}^BCN,${item.barcodeHeight ?? 20},Y,N,N`);
+            output.push(`^FD${sanitizeZplText(line.text)}^FS`);
+            continue;
+          }
+
+          output.push(`^FO${line.x},${line.y}${fontCommand(line.fontWidth, line.fontHeight)}^FD${sanitizeZplText(line.text)}^FS`);
+        }
       }
     }
   }

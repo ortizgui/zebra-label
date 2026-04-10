@@ -1,4 +1,4 @@
-export type FontSize = "sm" | "md" | "lg";
+export type FontSize = number;
 
 export type LabelPreset = {
   id: string;
@@ -11,16 +11,21 @@ export type LabelPreset = {
 
 export type LabelItem = {
   id: string;
+  kind: "pair" | "text" | "barcode";
   field: string;
   value: string;
   size?: FontSize;
+  sizeMode?: "auto" | "manual";
 };
 
 export type LabelConfig = {
   preset: LabelPreset;
-  columns: number;
+  itemColumns: number;
+  labelsPerRow: number;
+  rows: number;
+  printQuantity: number;
   items: LabelItem[];
-  align: "center";
+  align: "left" | "center";
 };
 
 export type FontMetrics = {
@@ -44,11 +49,16 @@ export type LayoutTextLine = {
 
 export type LayoutItem = {
   id: string;
+  kind: LabelItem["kind"];
   fieldLines: LayoutTextLine[];
   valueLines: LayoutTextLine[];
   top: number;
   bottom: number;
   columnIndex: number;
+  barcodeX?: number;
+  barcodeWidth?: number;
+  barcodeHeight?: number;
+  barcodeModuleWidth?: number;
 };
 
 export type LayoutColumn = {
@@ -59,11 +69,24 @@ export type LayoutColumn = {
   items: LayoutItem[];
 };
 
+export type LayoutCell = {
+  id: string;
+  rowIndex: number;
+  columnIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  columns: LayoutColumn[];
+};
+
 export type LabelLayout = {
   widthDots: number;
   heightDots: number;
+  labelWidthDots: number;
+  labelHeightDots: number;
   marginDots: number;
   printableWidth: number;
   printableHeight: number;
-  columns: LayoutColumn[];
+  cells: LayoutCell[];
 };
