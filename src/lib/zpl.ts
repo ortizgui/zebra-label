@@ -32,8 +32,11 @@ export function generateZpl(config: LabelConfig): string {
         for (const line of item.valueLines) {
           if (item.kind === "barcode") {
             output.push(`^BY${item.barcodeModuleWidth ?? 1},2,${item.barcodeHeight ?? 20}`);
-            output.push(`^FO${item.barcodeX ?? line.x},${item.top}^BCN,${item.barcodeHeight ?? 20},Y,N,N`);
+            output.push(`^FO${item.barcodeX ?? line.x},${item.top}^BCN,${item.barcodeHeight ?? 20},N,N,N`);
             output.push(`^FD${sanitizeZplText(line.text)}^FS`);
+            output.push(
+              `^FO${line.x},${line.y}${fontCommand(line.fontWidth, line.fontHeight)}^FD${sanitizeZplText(line.text)}^FS`,
+            );
             continue;
           }
 

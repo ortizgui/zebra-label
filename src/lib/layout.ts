@@ -15,6 +15,7 @@ const DOTS_PER_MM = 8;
 const CONTENT_COLUMN_GAP_DOTS = 12;
 const BARCODE_TEXT_GAP = 4;
 const LEFT_PADDING_DOTS = 6;
+const BARCODE_QUIET_ZONE_MODULES = 20;
 const MIN_BARCODE_HEIGHT = 14;
 const MIN_BARCODE_TEXT_HEIGHT = 8;
 const MIN_FONT_SIZE = 8;
@@ -31,6 +32,7 @@ type PreparedItem = {
   barcodeTextHeight: number;
   barcodeModuleWidth: number;
   barcodeWidth: number;
+  barcodeQuietZone: number;
 };
 
 function printableDimensions(config: LabelConfig) {
@@ -179,7 +181,7 @@ function estimateBarcodeModuleCount(value: string): number {
 }
 
 function pickBarcodeModuleWidth(barcodeValue: string, availableWidth: number): number {
-  const moduleCount = estimateBarcodeModuleCount(barcodeValue);
+  const moduleCount = estimateBarcodeModuleCount(barcodeValue) + BARCODE_QUIET_ZONE_MODULES;
 
   for (const moduleWidth of [3, 2, 1]) {
     if (moduleCount * moduleWidth <= availableWidth) {
@@ -209,7 +211,11 @@ function prepareItem(item: LabelItem, columnWidth: number): PreparedItem {
       ? wrapText(item.value, contentWidth, metrics.valueWidth, 1)
       : wrapText(item.value, contentWidth, metrics.valueWidth, metrics.valueMaxLines);
   const barcodeModuleWidth = pickBarcodeModuleWidth(item.value, contentWidth);
-  const barcodeWidth = estimateBarcodeModuleCount(item.value) * barcodeModuleWidth;
+  const barcodeQuietZone = item.kind === "barcode" ? (BARCODE_QUIET_ZONE_MODULES / 2) * barcodeModuleWidth : 0;
+  const barcodeWidth =
+    item.kind === "barcode"
+      ? (estimateBarcodeModuleCount(item.value) + BARCODE_QUIET_ZONE_MODULES) * barcodeModuleWidth
+      : 0;
   const prepared: PreparedItem = {
     item,
     metrics,
@@ -221,6 +227,7 @@ function prepareItem(item: LabelItem, columnWidth: number): PreparedItem {
     barcodeTextHeight: item.kind === "barcode" ? defaultBarcodeTextHeight(size) : 0,
     barcodeModuleWidth,
     barcodeWidth,
+    barcodeQuietZone,
   };
   prepared.height = itemHeight(prepared);
   return prepared;
@@ -236,6 +243,7 @@ function recomputePreparedItem(item: PreparedItem, columnWidth: number) {
   item.barcodeTextHeight = recomputed.barcodeTextHeight;
   item.barcodeModuleWidth = recomputed.barcodeModuleWidth;
   item.barcodeWidth = recomputed.barcodeWidth;
+  item.barcodeQuietZone = recomputed.barcodeQuietZone;
 }
 
 function fitItemsToColumn(items: PreparedItem[], printableHeight: number, columnWidth: number) {
@@ -380,6 +388,7 @@ function buildItemLayout(
     barcodeWidth: prepared.item.kind === "barcode" ? prepared.barcodeWidth : undefined,
     barcodeHeight: prepared.item.kind === "barcode" ? prepared.barcodeHeight : undefined,
     barcodeModuleWidth: prepared.item.kind === "barcode" ? prepared.barcodeModuleWidth : undefined,
+    barcodeQuietZone: prepared.item.kind === "barcode" ? prepared.barcodeQuietZone : undefined,
   };
 }
 

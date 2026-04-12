@@ -204,7 +204,7 @@ function PreviewSvg({ config, zoom }: { config: LabelConfig; zoom: number }) {
                         const bars = [];
                         const moduleWidth = item.barcodeModuleWidth ?? 1;
                         const barcodeHeight = Math.max(8, (item.barcodeHeight ?? 24) - 4);
-                        let cursorX = item.barcodeX ?? column.x + 8;
+                        let cursorX = (item.barcodeX ?? column.x + 8) + (item.barcodeQuietZone ?? 0);
                         let currentBit = encoding.data[0];
                         let runLength = 0;
 

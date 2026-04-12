@@ -63,6 +63,7 @@ export type LayoutItem = {
   barcodeWidth?: number;
   barcodeHeight?: number;
   barcodeModuleWidth?: number;
+  barcodeQuietZone?: number;
 };
 
 export type LayoutColumn = {
