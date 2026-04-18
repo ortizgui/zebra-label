@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { DEFAULT_ITEMS, LABEL_PRESETS } from "./data/presets";
+import { buildInfo } from "./lib/buildInfo";
 import { getCode128Encoding } from "./lib/barcode";
 import { buildLabelLayout, mmToDots, suggestAutoFontSize } from "./lib/layout";
 import { generateZpl } from "./lib/zpl";
@@ -829,6 +830,12 @@ export default function App() {
           </details>
         </section>
       </section>
+
+      <footer className="app-footer">
+        <span>Versão {buildInfo.version}</span>
+        {buildInfo.shortCommitSha ? <span>commit {buildInfo.shortCommitSha}</span> : null}
+        {buildInfo.deployedAt ? <span>publicado em {buildInfo.deployedAt}</span> : null}
+      </footer>
     </main>
   );
 }
