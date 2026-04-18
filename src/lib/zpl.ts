@@ -1,5 +1,5 @@
 import type { LabelConfig } from "../types";
-import { buildLabelLayout } from "./layout";
+import { buildLabelLayout, mmToDots } from "./layout";
 
 function sanitizeZplText(text: string): string {
   return text.replace(/[\r\n]+/g, " ").replace(/[\^~]/g, " ").trim();
@@ -11,12 +11,15 @@ function fontCommand(width: number, height: number): string {
 
 export function generateZpl(config: LabelConfig): string {
   const layout = buildLabelLayout(config);
+  const offsetXDots = mmToDots(config.printOffsetXMm);
+  const offsetYDots = mmToDots(config.printOffsetYMm);
   const output: string[] = [
     "^XA",
     "^CI28",
     "^MMT",
     `^PW${layout.widthDots}`,
     `^LL${layout.heightDots}`,
+    `^LH${offsetXDots},${offsetYDots}`,
     `^PQ${config.printQuantity}`,
   ];
 

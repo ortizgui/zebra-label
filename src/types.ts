@@ -9,6 +9,8 @@ export type LabelPreset = {
   marginMm: number;
   gapXMm?: number;
   gapYMm?: number;
+  printOffsetXMm?: number;
+  printOffsetYMm?: number;
 };
 
 export type LabelItem = {
@@ -30,6 +32,8 @@ export type LabelConfig = {
   align: "left" | "center";
   labelGapXMm: number;
   labelGapYMm: number;
+  printOffsetXMm: number;
+  printOffsetYMm: number;
 };
 
 export type FontMetrics = {

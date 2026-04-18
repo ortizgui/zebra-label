@@ -21,6 +21,8 @@ type PersistedConfig = {
   align?: LabelConfig["align"];
   labelGapXMm?: number;
   labelGapYMm?: number;
+  printOffsetXMm?: number;
+  printOffsetYMm?: number;
 };
 
 function createItem(): LabelItem {
@@ -76,6 +78,14 @@ function normalizeItem(item: LabelItem): LabelItem {
   };
 }
 
+function presetPrintOffsetXMm(preset: LabelConfig["preset"]): number {
+  return preset.printOffsetXMm ?? 0;
+}
+
+function presetPrintOffsetYMm(preset: LabelConfig["preset"]): number {
+  return preset.printOffsetYMm ?? 0;
+}
+
 function createDefaultConfig(): LabelConfig {
   const preset = LABEL_PRESETS.find((entry) => entry.id === "product-40x25") ?? LABEL_PRESETS[0];
   return {
@@ -88,6 +98,8 @@ function createDefaultConfig(): LabelConfig {
     align: "left",
     labelGapXMm: preset.gapXMm ?? 0,
     labelGapYMm: preset.gapYMm ?? 0,
+    printOffsetXMm: presetPrintOffsetXMm(preset),
+    printOffsetYMm: presetPrintOffsetYMm(preset),
   };
 }
 
@@ -115,6 +127,8 @@ function getInitialConfig(): LabelConfig {
       align: savedConfig.align === "center" ? "center" : "left",
       labelGapXMm: Math.max(0, savedConfig.labelGapXMm ?? preset.gapXMm ?? defaultConfig.labelGapXMm),
       labelGapYMm: Math.max(0, savedConfig.labelGapYMm ?? preset.gapYMm ?? defaultConfig.labelGapYMm),
+      printOffsetXMm: Math.min(20, Math.max(-20, savedConfig.printOffsetXMm ?? presetPrintOffsetXMm(preset))),
+      printOffsetYMm: Math.min(20, Math.max(-20, savedConfig.printOffsetYMm ?? presetPrintOffsetYMm(preset))),
     };
   } catch {
     return createDefaultConfig();
@@ -315,6 +329,8 @@ export default function App() {
       align: config.align,
       labelGapXMm: config.labelGapXMm,
       labelGapYMm: config.labelGapYMm,
+      printOffsetXMm: config.printOffsetXMm,
+      printOffsetYMm: config.printOffsetYMm,
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [config]);
@@ -344,6 +360,8 @@ export default function App() {
       preset,
       labelGapXMm: preset.gapXMm ?? current.labelGapXMm,
       labelGapYMm: preset.gapYMm ?? current.labelGapYMm,
+      printOffsetXMm: presetPrintOffsetXMm(preset),
+      printOffsetYMm: presetPrintOffsetYMm(preset),
     }));
   }
 
@@ -561,6 +579,46 @@ export default function App() {
                   setConfig((current) => ({
                     ...current,
                     labelGapYMm: Math.min(20, Math.max(0, Number(event.target.value) || 0)),
+                  }))
+                }
+              />
+            </label>
+
+            <label className="field-group">
+              <FieldLabel
+                label="Ajuste fino horizontal da impressão (mm)"
+                hint="Use este ajuste quando a impressão real não bate com a prévia. Valor negativo move tudo para a esquerda; valor positivo move para a direita. Ao trocar o tamanho da etiqueta, o sistema já sugere um valor padrão."
+              />
+              <input
+                type="number"
+                min={-20}
+                max={20}
+                step={0.5}
+                value={config.printOffsetXMm}
+                onChange={(event) =>
+                  setConfig((current) => ({
+                    ...current,
+                    printOffsetXMm: Math.min(20, Math.max(-20, Number(event.target.value) || 0)),
+                  }))
+                }
+              />
+            </label>
+
+            <label className="field-group">
+              <FieldLabel
+                label="Ajuste fino vertical da impressão (mm)"
+                hint="Use este ajuste quando a impressão começar muito acima ou muito abaixo. Valor negativo sobe o conteúdo; valor positivo desce. O valor padrão acompanha o tamanho da etiqueta selecionada."
+              />
+              <input
+                type="number"
+                min={-20}
+                max={20}
+                step={0.5}
+                value={config.printOffsetYMm}
+                onChange={(event) =>
+                  setConfig((current) => ({
+                    ...current,
+                    printOffsetYMm: Math.min(20, Math.max(-20, Number(event.target.value) || 0)),
                   }))
                 }
               />
